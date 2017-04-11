@@ -16,3 +16,8 @@ The following steps show how to compile the TeraRanger hub Multiflex node with R
 
 1. After sourcing your workspace (point 5 in compiling instructions) run the Multiflex node with: `rosrun teraranger_hub_multiflex teraranger_hub_multiflex_node`
 2. To change the sensor settings use *rqt_reconfigure* while *teraranger_hub_multiflex_node* is running: `rosrun rqt_reconfigure rqt_reconfigure`
+
+## Specifying portname during launch time
+
+Portname can be specified during launch by specifying the _portname_. For example:
+` rosrun teraranger_hub_multiflex terarger_hub_multiflex_node _portname:=/dev/ttyACM1`
