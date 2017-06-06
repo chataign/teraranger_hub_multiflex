@@ -104,7 +104,7 @@ public:
   int sensor_bit_mask[8];
 
   ros::NodeHandle nh_;
-  ros::Publisher range_publisher_;
+  ros::Publisher range_publisher_, individual_publishers_[8];
 
   dynamic_reconfigure::Server<teraranger_hub_multiflex::Teraranger_hub_multiflexConfig> dyn_param_server_;
   dynamic_reconfigure::Server<teraranger_hub_multiflex::Teraranger_hub_multiflexConfig>::CallbackType dyn_param_server_callback_function_;
@@ -112,6 +112,7 @@ public:
   SerialPort * serial_port_;
   boost::function<void(uint8_t)> serial_data_callback_function_;
 
+  bool single_publisher_;
   std::string portname_;
   std::string ns_;
 };

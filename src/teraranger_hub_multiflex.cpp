@@ -47,12 +47,24 @@ namespace teraranger_hub_multiflex
 
 Teraranger_hub_multiflex::Teraranger_hub_multiflex()
 {
+  int queue_size;
+  
   // Get paramters
   ros::NodeHandle private_node_handle_("~");
+  private_node_handle_.param("single_publisher", single_publisher_, true);
   private_node_handle_.param("portname", portname_, std::string("/dev/ttyACM0"));
+  private_node_handle_.param("queue_size", queue_size, 1);
 
   // Publishers
-  range_publisher_ = nh_.advertise<sensor_msgs::Range>("teraranger_hub_multiflex", 8);
+  if ( single_publisher_ )
+  {
+    range_publisher_ = nh_.advertise<sensor_msgs::Range>("teraranger_hub_multiflex", 8);
+  }
+  else
+  {
+    for ( int i=0; i<8; ++i ) individual_publishers_[i] = 
+      nh_.advertise<sensor_msgs::Range>("teraranger_hub_multiflex_" + IntToString(i), queue_size );
+  }
 
   // Create serial port
   serial_port_ = new SerialPort();
@@ -150,18 +162,18 @@ void Teraranger_hub_multiflex::parseCommand(uint8_t *input_buffer, uint8_t len)
 			{
 				if (ranges[i] < int_max_range && ranges[i] > int_min_range)
 				{
-				sensors[i].header.stamp = ros::Time::now();
-				sensors[i].header.seq = seq_ctr++;
-				sensors[i].range = ranges[i] * 0.001; // convert to m
-				range_publisher_.publish(sensors[i]);
+  				sensors[i].range = ranges[i] * 0.001; // convert to m
 				}
 				else
 				{
-					sensors[i].header.stamp = ros::Time::now();
-					sensors[i].header.seq = seq_ctr++;
 					sensors[i].range = -1;
-				  	range_publisher_.publish(sensors[i]);
 				}
+
+				sensors[i].header.stamp = ros::Time::now();
+				sensors[i].header.seq = seq_ctr++;
+				
+				ros::Publisher& range_pub = single_publisher_ ? range_publisher_ : individual_publishers_[i];
+				range_pub.publish(sensors[i]);
 			}
 			else
 			{
