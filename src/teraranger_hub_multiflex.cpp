@@ -59,8 +59,8 @@ Teraranger_hub_multiflex::Teraranger_hub_multiflex()
   private_node_handle_.param("min_range", min_range, 0.05);
   private_node_handle_.param("max_range", max_range, 2.0);
 
-	int_min_range_ = (int)min_range*1000;
-	int_max_range_ = (int)max_range*1000;
+  int_min_range_ = (int)min_range*1000;
+  int_max_range_ = (int)max_range*1000;
 
   // Create serial port
   serial_port_ = new SerialPort();
@@ -95,21 +95,21 @@ Teraranger_hub_multiflex::Teraranger_hub_multiflex()
 
 	for(int i=0; i<8; i++)
 	{
-			std::string frame_id = "base_range_" + IntToString(i);
+	    std::string frame_id = "base_range_" + IntToString(i);
 
-			range_msgs_[i].field_of_view = field_of_view;
-			range_msgs_[i].max_range = max_range;
-			range_msgs_[i].min_range = min_range;
-			range_msgs_[i].radiation_type = sensor_msgs::Range::INFRARED;
-			range_msgs_[i].header.frame_id = ros::names::append( ns, frame_id);
+	    range_msgs_[i].field_of_view = field_of_view;
+	    range_msgs_[i].max_range = max_range;
+	    range_msgs_[i].min_range = min_range;
+	    range_msgs_[i].radiation_type = sensor_msgs::Range::INFRARED;
+	    range_msgs_[i].header.frame_id = ros::names::append( ns, frame_id);
 
-			scan_msgs_[i].range_max = max_range;
-			scan_msgs_[i].range_min = min_range;
-			scan_msgs_[i].angle_min = -field_of_view/2;
-			scan_msgs_[i].angle_max = +field_of_view/2;
-			scan_msgs_[i].angle_increment = field_of_view;
-			scan_msgs_[i].ranges.resize(2);
-			scan_msgs_[i].header.frame_id = ros::names::append( ns, frame_id);
+	    scan_msgs_[i].range_max = max_range;
+	    scan_msgs_[i].range_min = min_range;
+	    scan_msgs_[i].angle_min = -field_of_view/2;
+	    scan_msgs_[i].angle_max = +field_of_view/2;
+	    scan_msgs_[i].angle_increment = field_of_view;
+	    scan_msgs_[i].ranges.resize(2);
+	    scan_msgs_[i].header.frame_id = ros::names::append( ns, frame_id);
 	}
 }
 
@@ -132,26 +132,16 @@ uint8_t Teraranger_hub_multiflex::crc8(uint8_t *p, uint8_t len)
 
 void Teraranger_hub_multiflex::parseCommand(uint8_t *input_buffer, uint8_t len)
 {
-	int16_t crc = crc8(input_buffer, 19);
 	static int seq_ctr = 0;
+	int16_t crc = crc8(input_buffer, 19);
 
 	if (crc == input_buffer[19])
 	{
-
 		int16_t ranges[8];
 		for(int i=0; i<8; i++)
 		{
 		   ranges[i] = input_buffer[i*2 + 2] << 8;
 		   ranges[i] |= input_buffer[i*2 + 3];
-
-			if (ranges[i] < int_max_range_ && ranges[i] > int_min_range_ )
-			{
-				ranges[i] *= 0.001; // convert to m
-			}
-			else
-			{
-				ranges[i] = -1;
-			}
 		}
 
 		uint8_t bitmask = input_buffer[18];
@@ -179,9 +169,11 @@ void Teraranger_hub_multiflex::parseCommand(uint8_t *input_buffer, uint8_t len)
 
 				ros::Publisher& pub = single_publisher_ ? group_publisher_ : individual_publishers_[i];
 
+			    double range_m = ( ranges[i] < int_max_range_ && ranges[i] > int_min_range_ ? ranges[i] * 0.001 : -1.0 );
+
 				if ( publish_laserscan_ )
 				{
-					scan_msgs_[i].ranges[0] = scan_msgs_[i].ranges[1] = ranges[i];
+					scan_msgs_[i].ranges[0] = scan_msgs_[i].ranges[1] = range_m;
 					scan_msgs_[i].header.stamp = ros::Time::now();
 					scan_msgs_[i].header.seq = seq_ctr++;
 
@@ -189,7 +181,7 @@ void Teraranger_hub_multiflex::parseCommand(uint8_t *input_buffer, uint8_t len)
 				}
 				else
 				{
-					range_msgs_[i].range = ranges[i];
+					range_msgs_[i].range = range_m;
 					range_msgs_[i].header.stamp = ros::Time::now();
 					range_msgs_[i].header.seq = seq_ctr++;
 
