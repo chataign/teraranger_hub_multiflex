@@ -39,7 +39,6 @@
 
 #include <ros/ros.h>
 #include <sensor_msgs/Range.h>
-#include <sensor_msgs/LaserScan.h>
 #include <std_msgs/Char.h>
 #include <dynamic_reconfigure/server.h>
 
@@ -104,11 +103,8 @@ public:
   int * sensor_bit_mask_ptr;
   int sensor_bit_mask[8];
 
-	sensor_msgs::Range range_msgs_[8];
-	sensor_msgs::LaserScan scan_msgs_[8];
-
   ros::NodeHandle nh_;
-  ros::Publisher group_publisher_, individual_publishers_[8];
+  ros::Publisher range_publisher_, individual_publishers_[8];
 
   dynamic_reconfigure::Server<teraranger_hub_multiflex::Teraranger_hub_multiflexConfig> dyn_param_server_;
   dynamic_reconfigure::Server<teraranger_hub_multiflex::Teraranger_hub_multiflexConfig>::CallbackType dyn_param_server_callback_function_;
@@ -117,11 +113,8 @@ public:
   boost::function<void(uint8_t)> serial_data_callback_function_;
 
   bool single_publisher_;
-  bool publish_laserscan_;
-  int queue_size_;
-  int int_min_range_;
-  int int_max_range_;
   std::string portname_;
+  std::string ns_;
 };
 
 } // namespace teraranger_hub
