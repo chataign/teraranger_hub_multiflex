@@ -39,6 +39,7 @@
 
 #include <ros/ros.h>
 #include <sensor_msgs/Range.h>
+#include <sensor_msgs/LaserScan.h>
 #include <std_msgs/Char.h>
 #include <dynamic_reconfigure/server.h>
 
@@ -113,8 +114,10 @@ public:
   boost::function<void(uint8_t)> serial_data_callback_function_;
 
   bool single_publisher_;
-  std::string portname_;
-  std::string ns_;
+  bool publish_laserscan_;
+  
+	sensor_msgs::Range range_msgs_[8];
+	sensor_msgs::LaserScan scan_msgs_[8];
 };
 
 } // namespace teraranger_hub
