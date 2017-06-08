@@ -102,13 +102,13 @@ Teraranger_hub_multiflex::Teraranger_hub_multiflex()
 		  std::string frame_id = "base_range_" + IntToString(i);
 
 		  range_msgs_[i].field_of_view = field_of_view;
-		  range_msgs_[i].max_range = max_range;
 		  range_msgs_[i].min_range = min_range;
+		  range_msgs_[i].max_range = max_range;
 		  range_msgs_[i].radiation_type = sensor_msgs::Range::INFRARED;
 		  range_msgs_[i].header.frame_id = ros::names::append(ns, frame_id);
 
-		  scan_msgs_[i].range_min = max_range;
-		  scan_msgs_[i].range_max = min_range;
+		  scan_msgs_[i].range_min = min_range;
+		  scan_msgs_[i].range_max = max_range;
 		  scan_msgs_[i].angle_min = -field_of_view/2;
 		  scan_msgs_[i].angle_max = +field_of_view/2;
 		  scan_msgs_[i].angle_increment = field_of_view;
